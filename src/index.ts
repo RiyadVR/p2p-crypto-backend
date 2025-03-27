@@ -8,24 +8,27 @@ const PORT = process.env.PORT || 3000; // Use the PORT environment variable
 app.use(cors());
 app.use(express.json()); // Parse JSON requests
 
-// Initialize SQLite database
-const db = new sqlite3.Database('./database.sqlite', (err) => {
-  if (err) {
-    console.error('Error opening database:', err.message);
-  } else {
-    console.log('Connected to SQLite database.');
-    // Create the ads table if it doesn't exist
-    db.run(`
-      CREATE TABLE IF NOT EXISTS ads (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user TEXT NOT NULL,
-        price REAL NOT NULL,
-        amount REAL NOT NULL,
-        type TEXT NOT NULL CHECK(type IN ('buy', 'sell'))
-      )
-    `);
+// Initialize SQLite database with the correct path
+const db = new sqlite3.Database(
+  process.env.RENDER ? '/opt/render/project/src/database.sqlite' : './database.sqlite',
+  (err) => {
+    if (err) {
+      console.error('Error opening database:', err.message);
+    } else {
+      console.log('Connected to SQLite database.');
+      // Create the ads table if it doesn't exist
+      db.run(`
+        CREATE TABLE IF NOT EXISTS ads (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user TEXT NOT NULL,
+          price REAL NOT NULL,
+          amount REAL NOT NULL,
+          type TEXT NOT NULL CHECK(type IN ('buy', 'sell'))
+        )
+      `);
+    }
   }
-});
+);
 
 // Define the Ad type (matches frontend)
 interface Ad {
